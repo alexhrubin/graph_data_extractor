@@ -4,6 +4,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import log
 
+def pic2data(filename, xlogbase=None, ylogbase=None):
+    showpic(filename)
+    axis_point_map = prompt_axes(xlogbase, ylogbase)
+    M = generate_transform(axis_point_map)
+    print M
+    data_points = prompt_data()
+    plt.close()
+
+    transformed_points = []
+    for point in data_points:
+        vec = np.mat([[point[0]], [point[1]], [1]])
+        transformed_vec = M*vec
+        transformed_vec = transformed_vec.tolist()
+        transformed_vec = [transformed_vec[0][0], transformed_vec[1][0]]
+
+        if xlogbase:
+            transformed_vec[0] = xlogbase ** transformed_vec[0]
+        if ylogbase:
+            transformed_vec[1] = ylogbase ** transformed_vec[1]
+        transformed_points.append(tuple(transformed_vec))
+    return transformed_points
+
 def showpic(filename):
     image = mpimg.imread(filename)
     plt.ion()
@@ -56,25 +78,3 @@ def generate_transform(axis_point_map):
     A = np.vstack((a[0][0:3].T, a[0][3:6].T, np.mat([0,0,1])))
 
     return A
-
-def pic2data(filename, xlogbase=None, ylogbase=None):
-    showpic(filename)
-    axis_point_map = prompt_axes(xlogbase, ylogbase)
-    M = generate_transform(axis_point_map)
-    print M
-    data_points = prompt_data()
-    plt.close()
-
-    transformed_points = []
-    for point in data_points:
-        vec = np.mat([[point[0]], [point[1]], [1]])
-        transformed_vec = M*vec
-        transformed_vec = transformed_vec.tolist()
-        transformed_vec = [transformed_vec[0][0], transformed_vec[1][0]]
-
-        if xlogbase:
-            transformed_vec[0] = xlogbase ** transformed_vec[0]
-        if ylogbase:
-            transformed_vec[1] = ylogbase ** transformed_vec[1]
-        transformed_points.append(tuple(transformed_vec))
-    return transformed_points
